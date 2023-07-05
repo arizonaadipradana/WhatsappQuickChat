@@ -60,7 +60,7 @@ fun HomePage(
 ) {
     Scaffold {
         val phoneNumber = rememberSaveable { mutableStateOf("") }
-        var message by remember { mutableStateOf(TextFieldValue("")) }
+        var message by remember { mutableStateOf("") }
         val context = LocalContext.current
 
         Column(
@@ -137,7 +137,7 @@ fun HomePage(
                             return@FilledIconButton
                         } else {
                             val trimmedPhoneNumber = getFullPhoneNumber().replace(" ", "")
-                            val url = "https://wa.me/$trimmedPhoneNumber?text=${message.text}"
+                            val url = "https://wa.me/$trimmedPhoneNumber?text=${message}"
                             val intent = Intent(Intent.ACTION_VIEW).apply {
                                 data =
                                     Uri.parse(url)
@@ -145,7 +145,7 @@ fun HomePage(
                             }
                             val history = History(
                                 phoneNumber = getFullPhoneNumber(),
-                                message = message.text
+                                message = message
                             )
                             viewModel.insert(history)
 
