@@ -1,6 +1,5 @@
 package com.uberalles.whatsappquickchat.database
 
-import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -16,4 +15,7 @@ data class History(
 
     @ColumnInfo(name = "message")
     val message: String,
+
+    @ColumnInfo(name = "created_at")
+    val createdAt: String
 )

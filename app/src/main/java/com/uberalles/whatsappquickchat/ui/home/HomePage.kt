@@ -3,6 +3,7 @@ package com.uberalles.whatsappquickchat.ui.home
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -50,6 +51,8 @@ import com.uberalles.whatsappquickchat.R
 import com.uberalles.whatsappquickchat.database.History
 import com.uberalles.whatsappquickchat.navigation.Screen
 import com.uberalles.whatsappquickchat.ui.theme.RobotoSlab
+import java.text.SimpleDateFormat
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +61,7 @@ fun HomePage(
     navController: NavController,
     viewModel: MainViewModel
 ) {
-    Scaffold {
+    Scaffold { it ->
         val phoneNumber = rememberSaveable { mutableStateOf("") }
         var message by remember { mutableStateOf("") }
         val context = LocalContext.current
@@ -132,7 +135,7 @@ fun HomePage(
                             message = message,
                             phoneNumber = phoneNumber.value,
                             context = context,
-                            viewModel = viewModel
+                            viewModel = viewModel,
                         )
                     },
                     shape = RoundedCornerShape(20.dp),
@@ -206,14 +209,18 @@ private fun sendWhatsAppMessage(
     } else {
         val trimmedPhoneNumber = getFullPhoneNumber().replace(" ", "")
         val url = "https://wa.me/$trimmedPhoneNumber?text=${message}"
+
         val intent = Intent(Intent.ACTION_VIEW).apply {
             data =
                 Uri.parse(url)
             `package` = "com.whatsapp"
         }
+
+        val createdAt = getCurrentTime()
         val history = History(
             phoneNumber = getFullPhoneNumber(),
-            message = message
+            message = message,
+            createdAt = "Sent at $createdAt"
         )
         viewModel.insert(history)
 
@@ -227,4 +234,10 @@ private fun sendWhatsAppMessage(
             ).show()
         }
     }
+}
+
+private fun getCurrentTime(): String {
+    val date = Date()
+    val formatter = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+    return formatter.format(date)
 }
