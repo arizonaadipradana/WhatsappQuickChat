@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
@@ -52,6 +53,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -122,7 +124,6 @@ fun ListHistory(
             animationSpec = tween(300)
         ) + fadeIn(initialAlpha = .3f, animationSpec = tween(300))
     }
-
     val exitTransition = remember {
         shrinkVertically(
             shrinkTowards = Alignment.Top,
@@ -152,15 +153,19 @@ fun ListHistory(
             ) {
                 Text(
                     modifier = Modifier
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .width(250.dp)
+                    ,
                     text = phoneNumber,
-                    fontSize = 24.sp
+                    fontSize = 24.sp,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
                 )
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .width(100.dp),
                     horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.Send,
@@ -193,7 +198,8 @@ fun ListHistory(
                     modifier = Modifier
                         .padding(horizontal = 10.dp, vertical = 5.dp),
                     text = message,
-                    textAlign = TextAlign.Justify
+                    textAlign = TextAlign.Justify,
+                    fontSize = 18.sp
                 )
             }
         }
@@ -230,17 +236,8 @@ fun AppBar(
 @Composable
 fun ListPreview() {
     ListHistory(
-        phoneNumber = "12345",
+        phoneNumber = "12345678910111111231241312",
         onClickSend = { },
         message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     )
 }
-
-//@Preview(showBackground = true, device = Devices.PIXEL_4)
-//@Composable
-//fun HistoryPagePreview() {
-//    HistoryPage(
-//        navController = rememberNavController(),
-//        viewModel = MainViewModel(HistoryRepository(HistoryDao))
-//    )
-//}

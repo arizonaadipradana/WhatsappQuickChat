@@ -1,6 +1,7 @@
 package com.uberalles.whatsappquickchat.ui.home
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -38,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -95,7 +95,7 @@ fun HomePage(
                 bottomStyle = false,
                 shape = RoundedCornerShape(20.dp)
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(5.dp))
             Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 OutlinedTextField(
                     modifier = modifier
@@ -128,38 +128,12 @@ fun HomePage(
                         .width(175.dp)
                         .height(50.dp),
                     onClick = {
-                        if (phoneNumber.value.isEmpty()) {
-                            Toast.makeText(
-                                context,
-                                "Please input a phone number",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@FilledIconButton
-                        } else {
-                            val trimmedPhoneNumber = getFullPhoneNumber().replace(" ", "")
-                            val url = "https://wa.me/$trimmedPhoneNumber?text=${message}"
-                            val intent = Intent(Intent.ACTION_VIEW).apply {
-                                data =
-                                    Uri.parse(url)
-                                `package` = "com.whatsapp"
-                            }
-                            val history = History(
-                                phoneNumber = getFullPhoneNumber(),
-                                message = message
-                            )
-                            viewModel.insert(history)
-
-                            try {
-                                context.startActivity(intent)
-                            } catch (e: ActivityNotFoundException) {
-                                Toast.makeText(
-                                    context,
-                                    "WhatsApp not installed",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-
+                        sendWhatsAppMessage(
+                            message = message,
+                            phoneNumber = phoneNumber.value,
+                            context = context,
+                            viewModel = viewModel
+                        )
                     },
                     shape = RoundedCornerShape(20.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
@@ -216,11 +190,41 @@ fun HomePage(
     }
 }
 
+private fun sendWhatsAppMessage(
+    phoneNumber: String,
+    message: String,
+    context: Context,
+    viewModel: MainViewModel
+) {
+    if (phoneNumber.isEmpty()) {
+        Toast.makeText(
+            context,
+            "Please input a phone number",
+            Toast.LENGTH_SHORT
+        ).show()
+        return
+    } else {
+        val trimmedPhoneNumber = getFullPhoneNumber().replace(" ", "")
+        val url = "https://wa.me/$trimmedPhoneNumber?text=${message}"
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data =
+                Uri.parse(url)
+            `package` = "com.whatsapp"
+        }
+        val history = History(
+            phoneNumber = getFullPhoneNumber(),
+            message = message
+        )
+        viewModel.insert(history)
 
-//@Preview(showBackground = true, device = Devices.PIXEL_4)
-//@Composable
-//fun HomePagePreview() {
-//    HomePage(
-//        navController = rememberNavController()
-//    )
-//}
+        try {
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(
+                context,
+                "WhatsApp not installed",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+}
