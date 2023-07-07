@@ -221,7 +221,14 @@ fun HomePage(
                 modifier = Modifier
                     .height(50.dp)
                     .width(200.dp),
-                onClick = { navController.navigate(Screen.History.route) }
+                onClick = {
+                    viewModel.interstitialAds(
+                        context = context,
+                        onDismiss = {
+                            navController.navigate(Screen.History.route)
+                        }
+                    )
+                }
             ) {
                 Text(
                     text = "Phone Number History",
