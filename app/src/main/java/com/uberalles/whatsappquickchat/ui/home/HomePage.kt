@@ -112,7 +112,7 @@ fun HomePage(
                 )
             }
 
-            Spacer(modifier = Modifier.height(26.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "WhatsApp\nQuick Message",
                 fontFamily = RobotoSlab,
