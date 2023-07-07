@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.uberalles.whatsappquickchat.MainActivity
 import com.uberalles.whatsappquickchat.MainViewModel
 import com.uberalles.whatsappquickchat.ui.history.HistoryPage
 import com.uberalles.whatsappquickchat.ui.home.HomePage
@@ -19,7 +20,8 @@ fun NavGraph(
         composable(Screen.Home.route) {
             HomePage(
                 navController = navController,
-                viewModel = viewModel
+                viewModel = viewModel,
+                mainActivity = MainActivity()
             )
         }
         composable(Screen.History.route) {

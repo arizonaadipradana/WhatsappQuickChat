@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "630523368706",
+    "project_id": "whatsappquickchat-d967a",
+    "storage_bucket": "whatsappquickchat-d967a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:630523368706:android:7b1fc69fa48a152456de1b",
+        "android_client_info": {
+          "package_name": "com.uberalles.whatsappquickchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "630523368706-bftgp8to7oo995fqpll4ikhr5lk5dbj2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAduXl_l-9ZflMlpA3tjKuwOVyvdukdpk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "630523368706-bftgp8to7oo995fqpll4ikhr5lk5dbj2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

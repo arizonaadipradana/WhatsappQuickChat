@@ -1,5 +1,6 @@
 package com.uberalles.whatsappquickchat.ui.home
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -20,7 +21,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -41,20 +41,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import com.togitech.ccp.component.TogiCountryCodePicker
 import com.togitech.ccp.component.getFullPhoneNumber
+import com.uberalles.whatsappquickchat.MainActivity
 import com.uberalles.whatsappquickchat.MainViewModel
 import com.uberalles.whatsappquickchat.R
 import com.uberalles.whatsappquickchat.database.History
 import com.uberalles.whatsappquickchat.navigation.Screen
 import com.uberalles.whatsappquickchat.ui.theme.RobotoSlab
-import com.uberalles.whatsappquickchat.ui.theme.WhatsappQuickChatTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -62,9 +63,10 @@ import java.util.Date
 fun HomePage(
     modifier: Modifier = Modifier,
     navController: NavController,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    mainActivity: MainActivity
 ) {
-    Scaffold { it ->
+    Scaffold(bottomBar = { BottomBar(modifier = modifier) }) { it ->
         val phoneNumber = rememberSaveable { mutableStateOf("") }
         var message by remember { mutableStateOf("") }
         val context = LocalContext.current
@@ -199,6 +201,7 @@ fun HomePage(
                 textAlign = TextAlign.Center
             )
         }
+
     }
 }
 
@@ -253,11 +256,43 @@ private fun getCurrentTime(): String {
     return formatter.format(date)
 }
 
-@Preview(showBackground = true, device = Devices.PIXEL_4)
 @Composable
-fun HomePagePreview() {
-    HomePage(
-        navController = rememberNavController(),
-        viewModel = MainViewModel()
+fun BottomBar(modifier: Modifier) {
+    AdMobBanner(modifier = modifier)
+}
+
+@Composable
+private fun AdMobBanner(
+    modifier: Modifier
+) {
+    AndroidView(
+        modifier = modifier.fillMaxWidth(),
+        factory = { context ->
+            AdView(context).apply {
+                setAdSize(AdSize.BANNER)
+                //Real Ad = ca-app-pub-7169259057058061/4949753666
+                adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                loadAd(AdRequest.Builder().build())
+            }
+        }
     )
 }
+
+
+@Composable
+private fun RewardedShowCompose(
+    modifier: Modifier = Modifier,
+) {
+    AndroidView(
+        modifier = modifier.fillMaxSize(),
+        factory = {
+            AdView(it).apply {
+                setAdSize(AdSize.FLUID)
+                //Real Ad = ca-app-pub-7169259057058061/4949753666
+                adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                loadAd(AdRequest.Builder().build())
+            }
+        }
+    )
+}
+
