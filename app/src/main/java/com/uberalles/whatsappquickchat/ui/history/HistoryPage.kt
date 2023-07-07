@@ -232,11 +232,6 @@ fun ListHistory(
     }
 }
 
-private fun animate (
-
-) {
-
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

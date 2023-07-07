@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -45,12 +46,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.togitech.ccp.component.TogiCountryCodePicker
 import com.togitech.ccp.component.getFullPhoneNumber
 import com.uberalles.whatsappquickchat.MainActivity
+import com.uberalles.whatsappquickchat.MainActivity.Companion.AD_BANNER_ID
+import com.uberalles.whatsappquickchat.MainActivity.Companion.AD_INTERSTITIAL_ID
+import com.uberalles.whatsappquickchat.MainActivity.Companion.TAG
+import com.uberalles.whatsappquickchat.MainActivity.Companion.mInterstitialAd
 import com.uberalles.whatsappquickchat.MainViewModel
 import com.uberalles.whatsappquickchat.R
 import com.uberalles.whatsappquickchat.database.History
@@ -140,12 +150,18 @@ fun HomePage(
                         .width(175.dp)
                         .height(50.dp),
                     onClick = {
-                        sendWhatsAppMessage(
-                            message = message,
-                            phoneNumber = phoneNumber.value,
+                        interstitialAds(
                             context = context,
-                            viewModel = viewModel,
+                            onDismiss = {
+                                sendWhatsAppMessage(
+                                    message = message,
+                                    phoneNumber = phoneNumber.value,
+                                    context = context,
+                                    viewModel = viewModel,
+                                )
+                            }
                         )
+
                     },
                     shape = RoundedCornerShape(20.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
@@ -270,29 +286,58 @@ private fun AdMobBanner(
         factory = { context ->
             AdView(context).apply {
                 setAdSize(AdSize.BANNER)
-                //Real Ad = ca-app-pub-7169259057058061/4949753666
-                adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                adUnitId = AD_BANNER_ID
                 loadAd(AdRequest.Builder().build())
             }
         }
     )
 }
 
-
-@Composable
-private fun RewardedShowCompose(
-    modifier: Modifier = Modifier,
+private fun interstitialAds(
+    context: Context,
+    onDismiss: () -> Unit
 ) {
-    AndroidView(
-        modifier = modifier.fillMaxSize(),
-        factory = {
-            AdView(it).apply {
-                setAdSize(AdSize.FLUID)
-                //Real Ad = ca-app-pub-7169259057058061/4949753666
-                adUnitId = "ca-app-pub-3940256099942544/6300978111"
-                loadAd(AdRequest.Builder().build())
+    InterstitialAd.load(
+        context,
+        AD_INTERSTITIAL_ID,
+        AdRequest.Builder().build(),
+        object : InterstitialAdLoadCallback() {
+            override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                interstitialAd.show(context as Activity)
+                mInterstitialAd = interstitialAd
+
+                mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                    override fun onAdClicked() {
+                        // Called when a click is recorded for an ad.
+                        Log.d(TAG, "Ad was clicked.")
+                    }
+
+                    override fun onAdDismissedFullScreenContent() {
+                        // Called when ad is dismissed.
+                        Log.d(TAG, "Ad dismissed fullscreen content.")
+                        onDismiss()
+                        mInterstitialAd = null
+                    }
+
+                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                        Log.e(TAG, "Ad failed to show fullscreen content.")
+                        Toast.makeText(
+                            context,
+                            "Ad failed to show.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        mInterstitialAd = null
+                    }
+                }
             }
-        }
-    )
+
+            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                Log.d("TAG", loadAdError.message)
+                mInterstitialAd = null
+            }
+
+        })
 }
+
+
 
