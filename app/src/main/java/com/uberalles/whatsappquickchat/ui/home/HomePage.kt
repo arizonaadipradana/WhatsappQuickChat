@@ -1,12 +1,5 @@
 package com.uberalles.whatsappquickchat.ui.home
 
-import android.app.Activity
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,39 +38,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.togitech.ccp.component.TogiCountryCodePicker
-import com.togitech.ccp.component.getFullPhoneNumber
-import com.uberalles.whatsappquickchat.MainActivity
-import com.uberalles.whatsappquickchat.MainActivity.Companion.AD_BANNER_ID
-import com.uberalles.whatsappquickchat.MainActivity.Companion.AD_INTERSTITIAL_ID
-import com.uberalles.whatsappquickchat.MainActivity.Companion.TAG
-import com.uberalles.whatsappquickchat.MainActivity.Companion.mInterstitialAd
 import com.uberalles.whatsappquickchat.MainViewModel
 import com.uberalles.whatsappquickchat.R
-import com.uberalles.whatsappquickchat.database.History
 import com.uberalles.whatsappquickchat.navigation.Screen
 import com.uberalles.whatsappquickchat.ui.theme.RobotoSlab
-import java.text.SimpleDateFormat
-import java.util.Date
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomePage(
     modifier: Modifier = Modifier,
     navController: NavController,
     viewModel: MainViewModel,
-    mainActivity: MainActivity
+    onPageLoaded: () -> Unit
 ) {
-    Scaffold(bottomBar = { BottomBar(modifier = modifier) }) { it ->
+    var keepLoading by remember {
+        mutableStateOf(true)
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        keepLoading = false
+        onPageLoaded()
+    }
+
+    Scaffold(
+        bottomBar = { BottomAds(modifier = modifier, viewModel = viewModel) }
+    ) { it ->
         val phoneNumber = rememberSaveable { mutableStateOf("") }
         var message by remember { mutableStateOf("") }
         val context = LocalContext.current
@@ -150,18 +138,24 @@ fun HomePage(
                         .width(175.dp)
                         .height(50.dp),
                     onClick = {
-                        interstitialAds(
+                        viewModel.interstitialAds(
                             context = context,
                             onDismiss = {
-                                sendWhatsAppMessage(
-                                    message = message,
-                                    phoneNumber = phoneNumber.value,
-                                    context = context,
-                                    viewModel = viewModel,
-                                )
+                                if (message.isEmpty()) {
+                                    viewModel.sendWhatsAppMessage(
+                                        message = "--Empty message--",
+                                        phoneNumber = phoneNumber.value,
+                                        context = context,
+                                    )
+                                } else {
+                                    viewModel.sendWhatsAppMessage(
+                                        message = message,
+                                        phoneNumber = phoneNumber.value,
+                                        context = context,
+                                    )
+                                }
                             }
                         )
-
                     },
                     shape = RoundedCornerShape(20.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
@@ -221,123 +215,17 @@ fun HomePage(
     }
 }
 
-private fun sendWhatsAppMessage(
-    phoneNumber: String,
-    message: String,
-    context: Context,
+
+@Composable
+fun BottomAds(
+    modifier: Modifier,
     viewModel: MainViewModel
 ) {
-    if (phoneNumber.isEmpty()) {
-        Toast.makeText(
-            context,
-            "Please input a phone number",
-            Toast.LENGTH_SHORT
-        ).show()
-        return
-    } else {
-        val trimmedPhoneNumber = getFullPhoneNumber().replace(" ", "")
-        val url = "https://wa.me/${trimmedPhoneNumber}?text=${message}"
-
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            data =
-                Uri.parse(url)
-            `package` = "com.whatsapp"
-        }
-
-        val getCurrentTime = getCurrentTime()
-        val createdAt = "Send at $getCurrentTime"
-
-        val history = History(
-            phoneNumber = getFullPhoneNumber(),
-            message = message,
-            createdAt = createdAt
-        )
-        viewModel.insert(history)
-
-        try {
-            context.startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            Toast.makeText(
-                context,
-                "WhatsApp not installed",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
+    viewModel.BannerAds(modifier = modifier)
 }
 
-private fun getCurrentTime(): String {
-    val date = Date()
-    val formatter = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
-    return formatter.format(date)
-}
 
-@Composable
-fun BottomBar(modifier: Modifier) {
-    AdMobBanner(modifier = modifier)
-}
 
-@Composable
-private fun AdMobBanner(
-    modifier: Modifier
-) {
-    AndroidView(
-        modifier = modifier.fillMaxWidth(),
-        factory = { context ->
-            AdView(context).apply {
-                setAdSize(AdSize.BANNER)
-                adUnitId = AD_BANNER_ID
-                loadAd(AdRequest.Builder().build())
-            }
-        }
-    )
-}
-
-private fun interstitialAds(
-    context: Context,
-    onDismiss: () -> Unit
-) {
-    InterstitialAd.load(
-        context,
-        AD_INTERSTITIAL_ID,
-        AdRequest.Builder().build(),
-        object : InterstitialAdLoadCallback() {
-            override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                interstitialAd.show(context as Activity)
-                mInterstitialAd = interstitialAd
-
-                mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                    override fun onAdClicked() {
-                        // Called when a click is recorded for an ad.
-                        Log.d(TAG, "Ad was clicked.")
-                    }
-
-                    override fun onAdDismissedFullScreenContent() {
-                        // Called when ad is dismissed.
-                        Log.d(TAG, "Ad dismissed fullscreen content.")
-                        onDismiss()
-                        mInterstitialAd = null
-                    }
-
-                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                        Log.e(TAG, "Ad failed to show fullscreen content.")
-                        Toast.makeText(
-                            context,
-                            "Ad failed to show.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        mInterstitialAd = null
-                    }
-                }
-            }
-
-            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                Log.d("TAG", loadAdError.message)
-                mInterstitialAd = null
-            }
-
-        })
-}
 
 
 

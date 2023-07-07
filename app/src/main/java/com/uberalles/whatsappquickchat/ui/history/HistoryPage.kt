@@ -1,10 +1,5 @@
 package com.uberalles.whatsappquickchat.ui.history
 
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
@@ -65,7 +60,6 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.uberalles.whatsappquickchat.MainViewModel
 import com.uberalles.whatsappquickchat.R
-import com.uberalles.whatsappquickchat.database.History
 import com.uberalles.whatsappquickchat.ui.theme.RobotoSlab
 
 @Composable
@@ -103,7 +97,6 @@ fun HistoryPage(
     } else {
         Scaffold(topBar = { AppBar(viewModel) }) {
             Box(modifier = Modifier.padding(it)) {
-
                 LazyColumn {
                     items(history) { history ->
                         ListHistory(
@@ -111,7 +104,15 @@ fun HistoryPage(
                             message = history.message,
                             createdAt = history.createdAt,
                             onClickSend = {
-                                sendAgain(context = context, history = history)
+                                viewModel.interstitialAds(
+                                    context = context,
+                                    onDismiss = {
+                                        viewModel.sendAgain(
+                                            context = context,
+                                            history = history
+                                        )
+                                    }
+                                )
                             }
                         )
                     }
@@ -186,15 +187,13 @@ fun ListHistory(
                     verticalAlignment = CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Send,
+                        painter = painterResource(id = R.drawable.ic_send),
                         contentDescription = "Message this number",
                         modifier = Modifier
                             .size(30.dp)
-                            .rotate(180f)
                             .clickable {
                                 onClickSend()
                             }
-
                     )
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowUp,
@@ -205,7 +204,6 @@ fun ListHistory(
 
                     )
                 }
-
             }
             AnimatedVisibility(
                 visible = expanded,
@@ -259,27 +257,6 @@ fun AppBar(
 
         }
     )
-}
-
-private fun sendAgain(
-    context: Context,
-    history: History
-) {
-    val url = "https://wa.me/${history.phoneNumber}?text=${history.message}"
-    val intent = Intent(Intent.ACTION_VIEW).apply {
-        data =
-            Uri.parse(url)
-        `package` = "com.whatsapp"
-    }
-    try {
-        context.startActivity(intent)
-    } catch (e: ActivityNotFoundException) {
-        Toast.makeText(
-            context,
-            "WhatsApp not installed",
-            Toast.LENGTH_SHORT
-        ).show()
-    }
 }
 
 @Preview(showBackground = true, device = Devices.PIXEL_4)

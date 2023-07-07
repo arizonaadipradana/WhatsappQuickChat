@@ -1,19 +1,14 @@
 package com.uberalles.whatsappquickchat
 
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.uberalles.whatsappquickchat.database.HistoryDao
 import com.uberalles.whatsappquickchat.database.HistoryDatabase
 import com.uberalles.whatsappquickchat.navigation.NavGraph
@@ -25,6 +20,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var historyDao: HistoryDao
 
     companion object {
+        var keepSplashOpened = true
         var mInterstitialAd: InterstitialAd? = null
         const val TAG = "MainActivity"
         const val AD_INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712"
@@ -34,6 +30,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+            val splashScreen = installSplashScreen()
+            splashScreen.setKeepOnScreenCondition { keepSplashOpened }
+        }
         setContent {
             WhatsappQuickChatTheme {
                 navController = rememberNavController()
@@ -42,15 +42,14 @@ class MainActivity : ComponentActivity() {
 
                 NavGraph(
                     navController = navController,
-                    viewModel = viewModel,
+                    viewModel = viewModel
                 )
-
                 MobileAds.initialize(this)
             }
         }
+
+
     }
-
-
 }
 
 
