@@ -2,6 +2,7 @@ package com.uberalles.whatsappquickchat.ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,12 +40,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.togitech.ccp.component.TogiCountryCodePicker
 import com.uberalles.whatsappquickchat.MainViewModel
 import com.uberalles.whatsappquickchat.R
 import com.uberalles.whatsappquickchat.navigation.Screen
 import com.uberalles.whatsappquickchat.ui.theme.RobotoSlab
-import kotlinx.coroutines.delay
 
 @Composable
 fun HomePage(
@@ -69,6 +74,13 @@ fun HomePage(
         var message by remember { mutableStateOf("") }
         val context = LocalContext.current
 
+        var animate by remember { mutableStateOf(false) }
+        val logoAnimation by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.animated_logo))
+        val animationProgress by animateLottieCompositionAsState(
+            composition = logoAnimation,
+            iterations = LottieConstants.IterateForever,
+        )
+
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -76,14 +88,30 @@ fun HomePage(
                 .verticalScroll(state = ScrollState(1), enabled = true),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(42.dp))
-            Image(
-                painter = painterResource(R.drawable.logo),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .width(184.dp)
-                    .height(196.dp),
-            )
+            if (animate) {
+                Box(
+                    modifier = modifier
+                        .padding(top = 42.dp)
+                        .fillMaxWidth()
+                        .height(196.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    LottieAnimation(
+                        composition = logoAnimation,
+                        progress = { animationProgress },
+                    )
+                }
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.logo),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .padding(top = 42.dp)
+                        .width(184.dp)
+                        .height(196.dp),
+                )
+            }
+
             Spacer(modifier = Modifier.height(26.dp))
             Text(
                 text = "WhatsApp\nQuick Message",
@@ -205,6 +233,10 @@ fun HomePage(
             }
             Spacer(modifier = Modifier.height(20.dp))
             Text(
+                modifier = Modifier
+                    .clickable {
+                        animate = !animate
+                    },
                 text = "Made with ❤️ by Uberalles",
                 fontFamily = RobotoSlab,
                 fontSize = 14.sp,

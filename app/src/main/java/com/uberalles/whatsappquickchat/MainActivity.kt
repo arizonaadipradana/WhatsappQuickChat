@@ -47,8 +47,6 @@ class MainActivity : ComponentActivity() {
                 MobileAds.initialize(this)
             }
         }
-
-
     }
 }
 

@@ -14,7 +14,7 @@ class SplashScreen : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launchWhenCreated {
-            delay(3000)
+            delay(500)
 
             val intent = Intent(this@SplashScreen, MainActivity::class.java)
             startActivity(intent)
