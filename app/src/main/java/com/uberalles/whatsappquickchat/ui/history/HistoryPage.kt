@@ -86,7 +86,8 @@ fun HistoryPage(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(it),
-                verticalArrangement = Arrangement.SpaceEvenly
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     modifier = Modifier.padding(top = 50.dp),
@@ -122,7 +123,6 @@ fun HistoryPage(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListHistory(
     phoneNumber: String,
@@ -230,6 +230,12 @@ fun ListHistory(
             }
         }
     }
+}
+
+private fun animate (
+
+) {
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

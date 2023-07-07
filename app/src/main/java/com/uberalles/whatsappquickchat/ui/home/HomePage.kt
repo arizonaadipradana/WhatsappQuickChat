@@ -41,9 +41,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.togitech.ccp.component.TogiCountryCodePicker
 import com.togitech.ccp.component.getFullPhoneNumber
 import com.uberalles.whatsappquickchat.MainViewModel
@@ -51,10 +54,10 @@ import com.uberalles.whatsappquickchat.R
 import com.uberalles.whatsappquickchat.database.History
 import com.uberalles.whatsappquickchat.navigation.Screen
 import com.uberalles.whatsappquickchat.ui.theme.RobotoSlab
+import com.uberalles.whatsappquickchat.ui.theme.WhatsappQuickChatTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(
     modifier: Modifier = Modifier,
@@ -96,10 +99,14 @@ fun HomePage(
                 onValueChange = { phoneNumber.value = it },
                 unfocusedBorderColor = MaterialTheme.colorScheme.primary,
                 bottomStyle = false,
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.background,
             )
             Spacer(modifier = Modifier.height(5.dp))
-            Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
                 OutlinedTextField(
                     modifier = modifier
                         .width(320.dp),
@@ -244,4 +251,13 @@ private fun getCurrentTime(): String {
     val date = Date()
     val formatter = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
     return formatter.format(date)
+}
+
+@Preview(showBackground = true, device = Devices.PIXEL_4)
+@Composable
+fun HomePagePreview() {
+    HomePage(
+        navController = rememberNavController(),
+        viewModel = MainViewModel()
+    )
 }
