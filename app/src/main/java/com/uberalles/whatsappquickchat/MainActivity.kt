@@ -6,16 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.uberalles.whatsappquickchat.database.HistoryDao
 import com.uberalles.whatsappquickchat.database.HistoryDatabase
-import com.uberalles.whatsappquickchat.database.HistoryRepository
-import com.uberalles.whatsappquickchat.ui.home.HomePage
 import com.uberalles.whatsappquickchat.navigation.NavGraph
 import com.uberalles.whatsappquickchat.ui.theme.WhatsappQuickChatTheme
 
@@ -35,7 +30,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     navController = rememberNavController()
                     historyDao = HistoryDatabase.getInstance(application).historyDao()
-                    viewModel = MainViewModel(HistoryRepository(historyDao))
+                    viewModel = MainViewModel()
 
                     NavGraph(
                         navController = navController,

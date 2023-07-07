@@ -58,7 +58,6 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -71,7 +70,6 @@ import com.uberalles.whatsappquickchat.ui.theme.RobotoSlab
 
 @Composable
 fun HistoryPage(
-    navController: NavController,
     viewModel: MainViewModel,
 ) {
     val context = LocalContext.current
@@ -82,24 +80,29 @@ fun HistoryPage(
         iterations = LottieConstants.IterateForever
     )
 
-    Scaffold(topBar = { AppBar(viewModel, isEmpty = history.isEmpty()) }) {
-        Box(modifier = Modifier.padding(it)) {
-            if (history.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Text(
-                        fontSize = 24.sp,
-                        fontFamily = RobotoSlab,
-                        fontWeight = FontWeight.W600,
-                        text = "There is nothing here,\ntry to message some numbers first!",
-                        textAlign = TextAlign.Center
-                    )
-                    LottieAnimation(composition = emptyList, progress = { progress })
+    if (history.isEmpty()) {
+        Scaffold {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    modifier = Modifier.padding(top = 50.dp),
+                    fontSize = 24.sp,
+                    fontFamily = RobotoSlab,
+                    fontWeight = FontWeight.W600,
+                    text = "There is nothing here,\ntry to message some numbers first!",
+                    textAlign = TextAlign.Center
+                )
+                LottieAnimation(composition = emptyList, progress = { progress })
+            }
+        }
+    } else {
+        Scaffold(topBar = { AppBar(viewModel) }) {
+            Box(modifier = Modifier.padding(it)) {
 
-                }
-            } else {
                 LazyColumn {
                     items(history) { history ->
                         ListHistory(
@@ -112,11 +115,11 @@ fun HistoryPage(
                         )
                     }
                 }
+
             }
-
         }
-
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -167,6 +170,7 @@ fun ListHistory(
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     modifier = Modifier
@@ -178,8 +182,6 @@ fun ListHistory(
                     maxLines = 1
                 )
                 Row(
-                    modifier = Modifier
-                        .width(100.dp),
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = CenterVertically
                 ) {
@@ -234,29 +236,25 @@ fun ListHistory(
 @Composable
 fun AppBar(
     viewModel: MainViewModel,
-    isEmpty: Boolean
 ) {
     TopAppBar(
         modifier = Modifier,
         title = { },
         actions = {
-            if (isEmpty) {
-                
-            } else {
-                IconButton(
-                    onClick = {
-                        viewModel.deleteAll()
-                    },
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .height(50.dp)
-                            .width(50.dp),
-                        painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = null
-                    )
-                }
+            IconButton(
+                onClick = {
+                    viewModel.deleteAll()
+                },
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .width(50.dp),
+                    painter = painterResource(id = R.drawable.ic_delete),
+                    contentDescription = null
+                )
             }
+
 
         }
     )
@@ -287,10 +285,9 @@ private fun sendAgain(
 @Composable
 fun ListPreview() {
     ListHistory(
-        phoneNumber = "12345678910111111231241312",
+        phoneNumber = "+62895355768211",
         onClickSend = { },
         createdAt = "12/12/2021",
         message = "e1s2e1 2c4e31 d1234d "
     )
 }
-

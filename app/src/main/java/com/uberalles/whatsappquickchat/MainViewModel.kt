@@ -9,9 +9,10 @@ import com.uberalles.whatsappquickchat.database.HistoryDatabase
 import com.uberalles.whatsappquickchat.database.HistoryRepository
 import kotlinx.coroutines.launch
 
-class MainViewModel(private var repository: HistoryRepository) : ViewModel() {
+class MainViewModel : ViewModel() {
     private val getAll: LiveData<List<History>>
     private val application: Application = Application()
+    private val repository: HistoryRepository
 
     init {
         val historyDao = HistoryDatabase.getInstance(application).historyDao()

@@ -3,7 +3,6 @@ package com.uberalles.whatsappquickchat.ui.home
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -40,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -142,6 +142,7 @@ fun HomePage(
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = Color(0xFF88CAE2)
                     ),
+                    enabled = phoneNumber.value.isNotEmpty() && phoneNumber.value.length > 2,
                     content = {
                         Row(
                             modifier = Modifier
@@ -153,6 +154,7 @@ fun HomePage(
                                 text = "Send",
                                 textAlign = TextAlign.Center,
                                 fontFamily = RobotoSlab,
+                                fontWeight = FontWeight.Bold,
                                 fontSize = 24.sp,
                             )
                             Icon(
@@ -208,7 +210,7 @@ private fun sendWhatsAppMessage(
         return
     } else {
         val trimmedPhoneNumber = getFullPhoneNumber().replace(" ", "")
-        val url = "https://wa.me/$trimmedPhoneNumber?text=${message}"
+        val url = "https://wa.me/${trimmedPhoneNumber}?text=${message}"
 
         val intent = Intent(Intent.ACTION_VIEW).apply {
             data =
@@ -216,11 +218,13 @@ private fun sendWhatsAppMessage(
             `package` = "com.whatsapp"
         }
 
-        val createdAt = getCurrentTime()
+        val getCurrentTime = getCurrentTime()
+        val createdAt = "Send at $getCurrentTime"
+
         val history = History(
             phoneNumber = getFullPhoneNumber(),
             message = message,
-            createdAt = "Sent at $createdAt"
+            createdAt = createdAt
         )
         viewModel.insert(history)
 

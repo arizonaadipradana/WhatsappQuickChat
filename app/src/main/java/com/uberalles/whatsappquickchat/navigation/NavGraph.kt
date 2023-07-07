@@ -23,7 +23,7 @@ fun NavGraph(
             )
         }
         composable(Screen.History.route) {
-            HistoryPage(navController = navController, viewModel = viewModel)
+            HistoryPage( viewModel = viewModel)
         }
     }
 }
