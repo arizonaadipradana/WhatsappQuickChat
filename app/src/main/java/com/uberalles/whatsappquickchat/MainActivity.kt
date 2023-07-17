@@ -23,8 +23,8 @@ class MainActivity : ComponentActivity() {
         var keepSplashOpened = true
         var mInterstitialAd: InterstitialAd? = null
         const val TAG = "MainActivity"
-        const val AD_INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712"
-        const val AD_BANNER_ID = "ca-app-pub-3940256099942544/6300978111"
+        const val AD_INTERSTITIAL_ID = "ca-app-pub-3942164860535593/995361858322"
+        const val AD_BANNER_ID = "ca-app-pub-3942164860535593/300558377822"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

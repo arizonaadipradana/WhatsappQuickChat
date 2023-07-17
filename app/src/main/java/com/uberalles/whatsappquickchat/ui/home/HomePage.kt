@@ -1,5 +1,6 @@
-package com.uberalles.whatsappquickchat.ui.home
+﻿package com.uberalles.whatsappquickchat.ui.home
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -15,7 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -23,11 +29,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -50,6 +58,7 @@ import com.uberalles.whatsappquickchat.MainViewModel
 import com.uberalles.whatsappquickchat.R
 import com.uberalles.whatsappquickchat.navigation.Screen
 import com.uberalles.whatsappquickchat.ui.theme.RobotoSlab
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomePage(
@@ -62,16 +71,19 @@ fun HomePage(
         mutableStateOf(true)
     }
 
+    var showBottomSheetScaffold by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(key1 = Unit) {
         keepLoading = false
         onPageLoaded()
     }
 
+
     Scaffold(
         bottomBar = { BottomAds(modifier = modifier, viewModel = viewModel) }
     ) { it ->
         val phoneNumber = rememberSaveable { mutableStateOf("") }
-        var message by remember { mutableStateOf("") }
+        var message by rememberSaveable { mutableStateOf("") }
         val context = LocalContext.current
 
         var animate by remember { mutableStateOf(false) }
@@ -166,24 +178,12 @@ fun HomePage(
                         .width(175.dp)
                         .height(50.dp),
                     onClick = {
-                        viewModel.interstitialAds(
-                            context = context,
-                            onDismiss = {
-                                if (message.isEmpty()) {
-                                    viewModel.sendWhatsAppMessage(
-                                        message = "--Empty message--",
-                                        phoneNumber = phoneNumber.value,
-                                        context = context,
-                                    )
-                                } else {
-                                    viewModel.sendWhatsAppMessage(
-                                        message = message,
-                                        phoneNumber = phoneNumber.value,
-                                        context = context,
-                                    )
-                                }
-                            }
-                        )
+                        showBottomSheetScaffold = !showBottomSheetScaffold
+//                        viewModel.sendWhatsAppMessage(
+//                                phoneNumber = phoneNumber.value,
+//                                message = message,
+//                                context = context
+//                            )
                     },
                     shape = RoundedCornerShape(20.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
@@ -250,9 +250,48 @@ fun HomePage(
                 textAlign = TextAlign.Center
             )
         }
-
+        if (showBottomSheetScaffold){
+            Log.d("HomePage","Showed Bottom Sheet")
+            WhatsappBottomSheetScaffold()
+        }
     }
 }
+
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun ModalBottomSheetPopUp(
+//    onClick: () -> Unit
+//) {
+//    val sheetState = rememberModalBottomSheetState()
+//    val scope = rememberCoroutineScope()
+//
+//    if (sheetState.isVisible) {
+//        androidx.compose.material3.ModalBottomSheet(
+//            sheetState = sheetState,
+//            onDismissRequest = {
+//                scope.launch {
+//                    sheetState.hide()
+//                }
+//            }
+//        ) {
+//            Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+//                CenterAlignedTopAppBar(navigationIcon = {
+//                    IconButton(onClick = {
+//                        scope.launch {
+//                            sheetState.hide()
+//                        }
+//                    }) {
+//                        Icon(Icons.Rounded.Close, contentDescription = "Cancel")
+//                    }
+//                }, title = { Text("Content") }, actions = {
+//                    IconButton(onClick = { }) {
+//                        Icon(Icons.Rounded.Check, contentDescription = "Save")
+//                    }
+//                })
+//            }
+//        }
+//    }
+//}
 
 
 @Composable
@@ -263,7 +302,34 @@ fun BottomAds(
     viewModel.BannerAds(modifier = modifier)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WhatsappBottomSheetScaffold() {
+    val scope = rememberCoroutineScope()
+    val scaffoldState = rememberBottomSheetScaffoldState()
 
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetPeekHeight = 140.dp,
+        sheetContent = {
+            Row(
+                modifier = Modifier.padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.Start)
+            ) {
+                Icon(Icons.Default.Share, contentDescription = "Share")
+                Text(text = "Share")
+            }
+
+            Button(onClick = { scope.launch { scaffoldState.bottomSheetState.expand() } }) {
+                Text(text = "Expand BottomSheet")
+            }
+            Button(onClick = { scope.launch { scaffoldState.bottomSheetState.partialExpand() } }) {
+                Text(text = "PartialExpand BottomSheet")
+            }
+        },
+        content = { Text(text = "Whatsapp") }
+    )
+}
 
 
 
